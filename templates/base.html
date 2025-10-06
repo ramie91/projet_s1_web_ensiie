@@ -1,4 +1,4 @@
-{{ define "base" }}
+{{ define "base" -}}
 <!doctype html>
 <html lang="fr">
 <head>
@@ -6,17 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ .title }}</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="shortcut icon" href="/static/ico/favicon.ico" type="image/x-icon">
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900 flex flex-col">
   {{ template "navbar" . }}
   <main class="flex-1 container mx-auto px-4 py-12">
-    {{ if eq .ContentTemplate "home_content" }}
-      {{ template "home_content" . }}
-    {{ else if eq .ContentTemplate "expenses_content" }}
-      {{ template "expenses_content" . }}
+    {{ $ctx := . }}
+    {{ with .ContentTemplate }}
+      {{ if eq . "home_content" }}
+        {{ template "home_content" $ctx }}
+      {{ else if eq . "expenses_content" }}
+        {{ template "expenses_content" $ctx }}
+      {{ else if eq . "create_expense_content" }}
+        {{ template "create_expense_content" $ctx }}
+      {{ end }}
     {{ end }}
   </main>
   {{ template "footer" . }}
 </body>
 </html>
-{{ end }}
+{{- end }}

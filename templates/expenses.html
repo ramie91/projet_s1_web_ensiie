@@ -10,16 +10,50 @@
   </div>
   <ul class="divide-y divide-slate-200 rounded-lg shadow bg-white">
     {{ range .expenses }}
-      <li class="p-4 flex items-center justify-between">
-        <div>
+      <li class="flex items-start justify-between gap-4 p-4">
+        <div class="space-y-1">
           <p class="text-lg font-medium text-slate-800">{{ .Title }}</p>
-          <p class="text-sm text-slate-500">#{{ .ID }}</p>
+          <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+            <span>#{{ .ID }}</span>
+            <span>{{ printf "%.2f" .Amount }} {{ .Currency }}</span>
+            <span>{{ .DateAchat }}</span>
+            <span>{{ .Category }}</span>
+          </div>
         </div>
-        <span class="text-lg font-semibold text-blue-600">{{ printf "%.2f" .Amount }} {{ .Currency }}</span>
+        <button type="button" data-expense-id="{{ .ID }}" class="inline-flex items-center gap-2 rounded-md border border-transparent px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2" aria-label="Supprimer la dépense {{ .Title }}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+          </svg>
+          <span>Supprimer</span>
+        </button>
       </li>
     {{ else }}
       <li class="p-4 text-center text-slate-500">Aucune dépense enregistrée</li>
     {{ end }}
   </ul>
 </section>
+<div id="delete-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div id="delete-modal-overlay" class="absolute inset-0 bg-slate-900/60"></div>
+  <div class="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl">
+    <div class="px-6 py-5 sm:px-8">
+      <div class="flex items-start gap-3">
+        <div class="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-red-100 text-red-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+        </div>
+        <div class="space-y-2">
+          <h2 class="text-lg font-semibold text-slate-900">Supprimer cette dépense ?</h2>
+          <p class="text-sm text-slate-600">Cette action est irréversible. La dépense sera définitivement supprimée de votre historique.</p>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50 px-6 py-4 sm:flex-row sm:justify-end sm:px-8">
+      <button id="cancel-delete" type="button" class="inline-flex items-center justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">Annuler</button>
+      <button id="confirm-delete" type="button" class="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2">Supprimer</button>
+    </div>
+  </div>
+</div>
+<script src="/static/js/expenses.js"></script>
 {{ end }}
