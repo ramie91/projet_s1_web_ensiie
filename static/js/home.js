@@ -77,9 +77,10 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let i = 0; i < expenses.length; i++) {
         totalDepense += Number(expenses[i].Amount) || 0;
         totalTransaction += 1;
-        if (new Date(expenses[i].Date).getMonth() === new Date().getMonth()) {
+        if (new Date(expenses[i].DateAchat).getMonth() === new Date().getMonth()) {
           totalDepenseMois += Number(expenses[i].Amount) || 0;
           totalTransactionMois += 1;
+          
         }
         const category = expenses[i].Category || "Autres";
         const amount = Number(expenses[i].Amount) || 0;
