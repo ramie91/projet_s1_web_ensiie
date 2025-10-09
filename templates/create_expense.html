@@ -23,6 +23,14 @@
         <input id="title" name="Title" type="text" required class="mt-1 w-full rounded-md border border-slate-300 p-2"
                placeholder="Ex: Pizza, Uber…" />
       </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-slate-700" for="user">Utilisateur</label>
+        <select id="user" name="UserID" class="mt-1 w-full rounded-md border border-slate-300 p-2" required>
+          {{ range .users }}
+            <option value="{{ .ID }}">{{ .Name }}</option>
+          {{ end }}
+        </select>
+      </div>
       <div>
         <label class="block text-sm font-medium text-slate-700" for="amount">Montant</label>
         <input id="amount" name="Amount" type="number" step="0.01" min="0" required

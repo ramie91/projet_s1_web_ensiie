@@ -41,6 +41,14 @@ addEventListener("DOMContentLoaded", () => {
       Category: document.getElementById("category").value.trim(),
     };
 
+    const userSelect = document.getElementById("user");
+    if (userSelect) {
+      const userId = parseInt(userSelect.value, 10);
+      if (!Number.isNaN(userId)) {
+        payload.UserID = userId;
+      }
+    }
+
     confirmBtn.disabled = true;
     confirmBtn.textContent = "Création...";
 
