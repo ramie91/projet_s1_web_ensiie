@@ -90,8 +90,15 @@ addEventListener("DOMContentLoaded", () => {
 
     fetch(`/expenses/delete/${state.id}`, {
       method: "DELETE",
+      headers: {
+        Accept: "application/json",
+      },
     })
       .then((response) => {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         if (response.ok) {
           state.item.remove();
           closeModal();

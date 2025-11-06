@@ -1,0 +1,37 @@
+{{ define "login.html" }}
+  {{ template "base" . }}
+{{ end }}
+
+{{ define "login_content" }}
+<section class="max-w-md mx-auto bg-white shadow rounded-xl p-8 space-y-6">
+  <header class="text-center space-y-2">
+    <h1 class="text-3xl font-semibold text-slate-800">Connexion</h1>
+    <p class="text-sm text-slate-500">Accédez à vos dépenses en vous connectant.</p>
+  </header>
+
+  {{ if .error }}
+    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {{ .error }}
+    </div>
+  {{ end }}
+
+  <form class="space-y-4" method="post" action="/login">
+    <div>
+      <label class="block text-sm font-medium text-slate-700" for="email">Email</label>
+      <input id="email" name="email" type="email" required class="mt-1 w-full rounded-md border border-slate-300 p-2" placeholder="vous@example.com" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700" for="password">Mot de passe</label>
+      <input id="password" name="password" type="password" required class="mt-1 w-full rounded-md border border-slate-300 p-2" placeholder="••••••••" />
+    </div>
+    <button class="w-full rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700" type="submit">
+      Se connecter
+    </button>
+  </form>
+
+  <p class="text-xs text-slate-400 text-center">Compte démo : demo@example.com / mot de passe : demo</p>
+  <p class="text-sm text-slate-500 text-center">
+    Pas encore de compte ? <a class="text-blue-600 hover:text-blue-700" href="/register">Créer un compte</a>
+  </p>
+</section>
+{{ end }}

@@ -4,11 +4,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/output.css">
   <title>{{ .title }}</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    try {
+      const storedTheme = localStorage.getItem("app-theme");
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const initialTheme = storedTheme || (prefersDark ? "dark" : "light");
+      document.documentElement.classList.toggle("dark", initialTheme === "dark");
+      if (!storedTheme) {
+        localStorage.setItem("app-theme", initialTheme);
+      }
+      const storedLang = localStorage.getItem("app-language");
+      if (storedLang) {
+        document.documentElement.setAttribute("lang", storedLang);
+      }
+    } catch (error) {
+      console.warn("Préférences locales indisponibles :", error);
+    }
+  </script>
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      darkMode: "class",
+    };
+  </script>
+  
+  <script defer src="/static/js/preferences.js"></script>
   <link rel="shortcut icon" href="/static/ico/favicon.ico" type="image/x-icon">
 </head>
-<body class="min-h-screen bg-slate-100 text-slate-900 flex flex-col">
+<body class="min-h-screen bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col transition-colors duration-300">
   {{ template "navbar" . }}
   <main class="flex-1 container mx-auto px-4 py-12">
     {{ $ctx := . }}
@@ -19,6 +44,10 @@
         {{ template "expenses_content" $ctx }}
       {{ else if eq . "create_expense_content" }}
         {{ template "create_expense_content" $ctx }}
+      {{ else if eq . "login_content" }}
+        {{ template "login_content" $ctx }}
+      {{ else if eq . "register_content" }}
+        {{ template "register_content" $ctx }}
       {{ end }}
     {{ end }}
   </main>

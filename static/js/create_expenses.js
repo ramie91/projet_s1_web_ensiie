@@ -61,6 +61,10 @@ addEventListener("DOMContentLoaded", () => {
       body: JSON.stringify(payload),
     })
       .then((response) => {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return Promise.reject(new Error("unauthorized"));
+        }
         if (!response.ok) {
           throw new Error("create_failed");
         }

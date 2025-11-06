@@ -1,8 +1,8 @@
 {{ define "footer" }}
-<footer class="bg-slate-900 text-slate-200">
+<footer class="bg-slate-900 text-slate-200 dark:bg-slate-950 dark:text-slate-200 transition-colors duration-300">
   <div class="container mx-auto flex flex-col gap-2 px-4 py-6 text-sm md:flex-row md:items-center md:justify-between">
-    <p>&copy; 2025 Nasseraldin Ramie. Tous droits réservés.</p>
-    <p class="text-slate-400">Créé avec soin pour simplifier vos partages de frais.</p>
+    <p data-i18n="footer.rights">&copy; 2025 Nasseraldin Ramie. Tous droits réservés.</p>
+    <p class="text-slate-400 dark:text-slate-400" data-i18n="footer.tagline">Créé avec soin pour simplifier vos partages de frais.</p>
   </div>
 </footer>
 {{ end }}

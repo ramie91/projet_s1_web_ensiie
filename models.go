@@ -3,15 +3,18 @@ package main
 import (
 	"errors"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 type User struct {
-	ID       uint      `gorm:"primaryKey"`
-	Name     string    `gorm:"not null"`
-	Email    string    `gorm:"uniqueIndex;not null"`
-	Expenses []Expense `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	ID           uint      `gorm:"primaryKey"`
+	Name         string    `gorm:"not null"`
+	Email        string    `gorm:"uniqueIndex;not null"`
+	Password     string    `gorm:"-"` // helper field for form binding
+	PasswordHash string    `gorm:"not null"`
+	Expenses     []Expense `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 }
 
 type Expense struct {
@@ -21,7 +24,7 @@ type Expense struct {
 	Currency  string  `gorm:"size:3;not null"`
 	DateAchat string  `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	Category  string  `gorm:"size:50"`
-	UserID    uint    `gorm:""`
+	UserID    uint    `gorm:"not null"`
 	User      User    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 }
 
@@ -40,7 +43,7 @@ func initDatabase(path string) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	if err := db.Model(&Expense{}).Where("user_id = 0").Update("user_id", defaultUser.ID).Error; err != nil {
+	if err := db.Model(&Expense{}).Where("user_id = ? OR user_id IS NULL", 0).Update("user_id", defaultUser.ID).Error; err != nil {
 		return nil, err
 	}
 
@@ -65,6 +68,14 @@ func initDatabase(path string) (*gorm.DB, error) {
 func ensureDefaultUser(db *gorm.DB) (User, error) {
 	var user User
 	if err := db.Order("id ASC").First(&user).Error; err == nil {
+		if user.PasswordHash == "" {
+			if err := user.SetPassword("demo"); err != nil {
+				return User{}, err
+			}
+			if err := db.Model(&user).Update("password_hash", user.PasswordHash).Error; err != nil {
+				return User{}, err
+			}
+		}
 		return user, nil
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return User{}, err
@@ -74,9 +85,31 @@ func ensureDefaultUser(db *gorm.DB) (User, error) {
 		Name:  "Utilisateur Démo",
 		Email: "demo@example.com",
 	}
+	if err := defaultUser.SetPassword("demo"); err != nil {
+		return User{}, err
+	}
 	if err := db.Create(&defaultUser).Error; err != nil {
 		return User{}, err
 	}
 
 	return defaultUser, nil
+}
+
+func (u *User) SetPassword(password string) error {
+	if password == "" {
+		return errors.New("password empty")
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	u.PasswordHash = string(hash)
+	return nil
+}
+
+func (u *User) CheckPassword(password string) bool {
+	if u.PasswordHash == "" {
+		return false
+	}
+	return bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password)) == nil
 }
