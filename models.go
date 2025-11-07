@@ -14,6 +14,7 @@ type User struct {
 	Email        string    `gorm:"uniqueIndex;not null"`
 	Password     string    `gorm:"-"` // helper field for form binding
 	PasswordHash string    `gorm:"not null"`
+	IsAdmin      bool      `gorm:"default:false"`
 	Expenses     []Expense `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 }
 
@@ -40,6 +41,10 @@ func initDatabase(path string) (*gorm.DB, error) {
 
 	defaultUser, err := ensureDefaultUser(db)
 	if err != nil {
+		return nil, err
+	}
+
+	if _, err := ensureAdminUser(db); err != nil {
 		return nil, err
 	}
 
@@ -93,6 +98,36 @@ func ensureDefaultUser(db *gorm.DB) (User, error) {
 	}
 
 	return defaultUser, nil
+}
+
+func ensureAdminUser(db *gorm.DB) (User, error) {
+	var admin User
+	if err := db.Where("is_admin = ?", true).Order("id ASC").First(&admin).Error; err == nil {
+		if admin.PasswordHash == "" {
+			if err := admin.SetPassword("admin"); err != nil {
+				return User{}, err
+			}
+			if err := db.Model(&admin).Update("password_hash", admin.PasswordHash).Error; err != nil {
+				return User{}, err
+			}
+		}
+		return admin, nil
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return User{}, err
+	}
+
+	admin = User{
+		Name:    "Administrateur",
+		Email:   "admin@example.com",
+		IsAdmin: true,
+	}
+	if err := admin.SetPassword("admin"); err != nil {
+		return User{}, err
+	}
+	if err := db.Create(&admin).Error; err != nil {
+		return User{}, err
+	}
+	return admin, nil
 }
 
 func (u *User) SetPassword(password string) error {

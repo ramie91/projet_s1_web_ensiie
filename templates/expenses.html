@@ -5,8 +5,8 @@
 {{ define "expenses_content" }}
 <section class="max-w-4xl mx-auto space-y-6">
   <div class="flex items-center justify-between">
-    <h1 class="text-3xl font-semibold text-slate-800 dark:text-slate-100">Liste des dépenses</h1>
-    <a class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200 transition-colors" href="/">Retour à l'accueil</a>
+    <h1 class="text-3xl font-semibold text-slate-800 dark:text-slate-100" data-i18n="expenses.heading">Liste des dépenses</h1>
+    <a class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200 transition-colors" href="/" data-i18n="action.backHome">Retour à l'accueil</a>
   </div>
   <!-- Filter Bar -->
   <div class="bg-white dark:bg-slate-900/70 rounded-xl shadow-sm dark:shadow-slate-950/40 border border-transparent dark:border-slate-800/60 backdrop-blur-sm p-4 mb-6 transition-colors">
@@ -17,6 +17,7 @@
           type="text"
           id="search-input"
           placeholder="Rechercher une dépense..."
+          data-i18n-placeholder="expenses.filter.searchPlaceholder"
           class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950/60 text-slate-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
         />
       </div>
@@ -26,9 +27,9 @@
           id="category-select"
           class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition appearance-none bg-white dark:bg-slate-950/60 text-slate-900 dark:text-slate-100"
         >
-          <option value="">Toutes les catégories</option>
+          <option value="" data-i18n="expenses.filter.allCategories">Toutes les catégories</option>
           {{ range .categories }}
-            <option value="{{ .Value }}">{{ .Label }}</option>
+            <option value="{{ .Value }}" data-i18n="{{ printf "category.label.%s" .Value }}">{{ .Label }}</option>
           {{ end }}
         </select>
       </div>
@@ -39,17 +40,17 @@
       <table class="w-full text-left text-sm text-slate-700 dark:text-slate-200">
         <thead class="bg-gray-50 dark:bg-slate-950/60 border-b border-gray-200 dark:border-slate-800/80 text-xs font-semibold uppercase tracking-wider">
           <tr>
-            <th class="px-6 py-4 text-gray-600 dark:text-slate-300">Description</th>
-            <th class="px-6 py-4 text-gray-600 dark:text-slate-300">Utilisateur</th>
-            <th class="px-6 py-4 text-gray-600 dark:text-slate-300">Catégorie</th>
-            <th class="px-6 py-4 text-gray-600 dark:text-slate-300">Date</th>
-            <th class="px-6 py-4 text-right text-gray-600 dark:text-slate-300">Montant</th>
-            <th class="px-6 py-4 text-right text-gray-600 dark:text-slate-300">Actions</th>
+            <th class="px-6 py-4 text-gray-600 dark:text-slate-300" data-i18n="expenses.table.descriptionHeader">Description</th>
+            <th class="px-6 py-4 text-gray-600 dark:text-slate-300" data-i18n="expenses.table.userHeader">Utilisateur</th>
+            <th class="px-6 py-4 text-gray-600 dark:text-slate-300" data-i18n="expenses.table.categoryHeader">Catégorie</th>
+            <th class="px-6 py-4 text-gray-600 dark:text-slate-300" data-i18n="expenses.table.dateHeader">Date</th>
+            <th class="px-6 py-4 text-right text-gray-600 dark:text-slate-300" data-i18n="expenses.table.amountHeader">Montant</th>
+            <th class="px-6 py-4 text-right text-gray-600 dark:text-slate-300" data-i18n="expenses.table.actionsHeader">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-slate-800/70">
           {{ range .expenses }}
-          <tr class="hover:bg-gray-50 dark:hover:bg-slate-900/60 transition">
+          <tr class="hover:bg-gray-50 dark:hover:bg-slate-900/60 transition" data-category="{{ .Category }}">
             <td class="px-6 py-4">
               <div class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ .Title }}</div>
             </td>
@@ -59,7 +60,7 @@
                 {{ if .User.Name }}
                   {{ .User.Name }}
                 {{ else }}
-                  Utilisateur inconnu
+                  <span data-i18n="expenses.table.unknownUser">Utilisateur inconnu</span>
                 {{ end }}
               </div>
             </td>
@@ -79,14 +80,14 @@
               <div class="text-sm font-semibold text-gray-900 dark:text-slate-100">{{ printf "%.2f" .Amount }} {{ .Currency }}</div>
             </td>
             <td class="px-6 py-4 text-right">
-              <button type="button" data-expense-id="{{ .ID }}" class="inline-flex items-center justify-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition" title="Supprimer">
+              <button type="button" data-expense-id="{{ .ID }}" class="inline-flex items-center justify-center p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition" title="Supprimer" data-i18n-title="expenses.table.deleteTitle">
                 <span>🗑️</span>
               </button>
             </td>
           </tr>
           {{ else }}
           <tr class="bg-white dark:bg-slate-900/40">
-            <td colspan="6" class="p-4 text-center text-slate-500 dark:text-slate-400">Aucune dépense enregistrée</td>
+            <td colspan="6" class="p-4 text-center text-slate-500 dark:text-slate-400" data-i18n="expenses.table.empty">Aucune dépense enregistrée</td>
           </tr>
           {{ end }}
         </tbody>
@@ -105,14 +106,14 @@
           </svg>
         </div>
         <div class="space-y-2">
-          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Supprimer cette dépense ?</h2>
-          <p class="text-sm text-slate-600 dark:text-slate-400">Cette action est irréversible. La dépense sera définitivement supprimée de votre historique.</p>
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100" data-i18n="expenses.modal.title">Supprimer cette dépense ?</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400" data-i18n="expenses.modal.body">Cette action est irréversible. La dépense sera définitivement supprimée de votre historique.</p>
         </div>
       </div>
     </div>
     <div class="flex flex-col gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 px-6 py-4 sm:flex-row sm:justify-end sm:px-8">
-      <button id="cancel-delete" type="button" class="inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900">Annuler</button>
-      <button id="confirm-delete" type="button" class="inline-flex items-center justify-center rounded-md bg-red-600 dark:bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-700 dark:hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900">Supprimer</button>
+      <button id="cancel-delete" type="button" class="inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900" data-i18n="expenses.modal.cancel">Annuler</button>
+      <button id="confirm-delete" type="button" class="inline-flex items-center justify-center rounded-md bg-red-600 dark:bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-700 dark:hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900" data-i18n="expenses.modal.confirm">Supprimer</button>
     </div>
   </div>
 </div>

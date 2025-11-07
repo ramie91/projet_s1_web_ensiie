@@ -5,8 +5,8 @@
 {{ define "create_expense_content" }}
 <section class="max-w-4xl mx-auto space-y-6">
   <div class="flex items-center justify-between">
-    <h1 class="text-3xl font-semibold text-slate-800 dark:text-slate-100">Créer une dépense</h1>
-    <a class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200 transition-colors" href="/expenses">Retour</a>
+    <h1 class="text-3xl font-semibold text-slate-800 dark:text-slate-100" data-i18n="create.heading">Créer une dépense</h1>
+    <a class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200 transition-colors" href="/expenses" data-i18n="action.back">Retour</a>
   </div>
 
   {{ if .error }}
@@ -19,12 +19,12 @@
   <form id="expense-form" class="space-y-4 bg-white dark:bg-slate-900/70 border border-transparent dark:border-slate-800/60 rounded-2xl shadow-sm dark:shadow-slate-950/40 p-6" method="post" action="/expenses" novalidate>
     <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
       <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="title">Titre</label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="title" data-i18n="create.label.title">Titre</label>
         <input id="title" name="Title" type="text" required class="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950/60 p-2 text-slate-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-               placeholder="Ex: Pizza, Uber…" />
+               placeholder="Ex: Pizza, Uber…" data-i18n-placeholder="create.placeholder.title" />
       </div>
       <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="user">Utilisateur</label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="user" data-i18n="create.label.user">Utilisateur</label>
         <select id="user" name="UserID" class="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950/60 p-2 text-slate-900 dark:text-slate-100" required>
           {{ range .users }}
             <option value="{{ .ID }}"
@@ -37,12 +37,12 @@
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="amount">Montant</label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="amount" data-i18n="create.label.amount">Montant</label>
         <input id="amount" name="Amount" type="number" step="0.01" min="0" required
                class="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950/60 p-2 text-slate-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="0.00" />
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="currency">Devise</label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="currency" data-i18n="create.label.currency">Devise</label>
         <select id="currency" name="Currency" class="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950/60 p-2 text-slate-900 dark:text-slate-100" required>
           <option value="EUR" selected>EUR</option>
           <option value="USD">USD</option>
@@ -50,32 +50,32 @@
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="category">Catégorie</label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="category" data-i18n="create.label.category">Catégorie</label>
         <select id="category" name="Category" class="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950/60 p-2 text-slate-900 dark:text-slate-100" required>
-          <option value="Logement">Logement</option>
-          <option value="Alimentation">Alimentation</option>
-          <option value="Transport">Transport</option>
-          <option value="Sante">Santé & Bien-être</option>
-          <option value="Loisirs">Loisirs & Culture</option>
-          <option value="Education">Éducation & Formation</option>
-          <option value="Achats">Achats divers</option>
-          <option value="Impots">Impôts & Services financiers</option>
-          <option value="Famille">Famille & Cadeaux</option>
-          <option value="Autres">Autres / Divers</option>
+          <option value="Logement" data-i18n="category.label.Logement">Logement</option>
+          <option value="Alimentation" data-i18n="category.label.Alimentation">Alimentation</option>
+          <option value="Transport" data-i18n="category.label.Transport">Transport</option>
+          <option value="Sante" data-i18n="category.label.Sante">Santé & Bien-être</option>
+          <option value="Loisirs" data-i18n="category.label.Loisirs">Loisirs & Culture</option>
+          <option value="Education" data-i18n="category.label.Education">Éducation & Formation</option>
+          <option value="Achats" data-i18n="category.label.Achats">Achats divers</option>
+          <option value="Impots" data-i18n="category.label.Impots">Impôts & Services financiers</option>
+          <option value="Famille" data-i18n="category.label.Famille">Famille & Cadeaux</option>
+          <option value="Autres" data-i18n="category.label.Autres">Autres / Divers</option>
         </select>
       </div>
       <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="date">Date d'achat</label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="date" data-i18n="create.label.date">Date d'achat</label>
         <input id="date" name="DateAchat" type="date"
                class="mt-1 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950/60 p-2 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                value="{{ .today }}" />
       </div>
     </div>
     <div class="flex items-center justify-end gap-3">
-      <button id="reset-form" type="reset" class="rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+      <button id="reset-form" type="reset" class="rounded-md border border-slate-300 dark:border-slate-700 px-3 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition" data-i18n="create.button.reset">
         Réinitialiser
       </button>
-      <button id="submit-expense" type="submit" class="rounded-md bg-blue-600 dark:bg-blue-500 px-4 py-2 font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-400 transition">
+      <button id="submit-expense" type="submit" class="rounded-md bg-blue-600 dark:bg-blue-500 px-4 py-2 font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-400 transition" data-i18n="create.button.submit">
         Ajouter
       </button>
     </div>
@@ -92,14 +92,14 @@
           </svg>
         </div>
         <div class="space-y-2">
-          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Valider la dépense ?</h2>
-          <p class="text-sm text-slate-600 dark:text-slate-400">Confirmez la création de cette dépense. Elle sera ajoutée à votre liste.</p>
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100" data-i18n="create.modal.title">Valider la dépense ?</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400" data-i18n="create.modal.body">Confirmez la création de cette dépense. Elle sera ajoutée à votre liste.</p>
         </div>
       </div>
     </div>
     <div class="flex flex-col gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 px-6 py-4 sm:flex-row sm:justify-end sm:px-8">
-      <button id="cancel-create" type="button" class="inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900">Annuler</button>
-      <button id="confirm-create" type="button" class="inline-flex items-center justify-center rounded-md bg-blue-600 dark:bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900">Valider</button>
+      <button id="cancel-create" type="button" class="inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900" data-i18n="create.modal.cancel">Annuler</button>
+      <button id="confirm-create" type="button" class="inline-flex items-center justify-center rounded-md bg-blue-600 dark:bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900" data-i18n="create.modal.confirm">Valider</button>
     </div>
   </div>
 </div>

@@ -12,7 +12,12 @@ addEventListener("DOMContentLoaded", () => {
   }
 
   function normalize(str) {
-    return (str || "").toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+    return (str || "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "");
   }
 
   function filterRows() {
@@ -26,10 +31,20 @@ addEventListener("DOMContentLoaded", () => {
       }
       const cells = row.querySelectorAll("td");
       const desc = cells[0]?.innerText || "";
-      const category = cells[1]?.innerText || "";
+      const category =
+        row.dataset.category ||
+        cells[2]?.getAttribute("data-category") ||
+        cells[2]?.innerText ||
+        "";
+
+      const normalizedCategory = normalize(category);
+      const normalizedSelected = normalize(cat);
+
       // Filtrage
       const matchSearch = search === "" || normalize(desc).includes(search);
-      const matchCat = cat === "" || normalize(category).includes(normalize(cat));
+      const matchCat =
+        normalizedSelected === "" ||
+        normalizedCategory === normalizedSelected;
       row.style.display = (matchSearch && matchCat) ? "" : "none";
     });
     // Affiche la ligne "Aucune dépense" si tout est masqué
@@ -56,6 +71,18 @@ addEventListener("DOMContentLoaded", () => {
   const state = {
     id: null,
     item: null,
+  };
+
+  const translate = (key) => {
+    try {
+      const prefs = window.appPreferences;
+      if (prefs && typeof prefs.translate === "function") {
+        return prefs.translate(key);
+      }
+    } catch (error) {
+      console.warn("translation fallback used", error);
+    }
+    return key;
   };
 
   const closeModal = () => {
@@ -103,12 +130,12 @@ addEventListener("DOMContentLoaded", () => {
           state.item.remove();
           closeModal();
         } else {
-          alert("Erreur lors de la suppression de la dépense.");
+          alert(translate("expenses.error.delete"));
         }
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert("Erreur lors de la suppression de la dépense.");
+        alert(translate("expenses.error.delete"));
       });
   });
 

@@ -7,6 +7,9 @@
       {{ if .currentUser }}
         <a class="hover:text-blue-600 dark:hover:text-blue-400" href="/expenses/create" data-i18n="nav.addExpense">Ajouter une dépense</a>
         <a class="hover:text-blue-600 dark:hover:text-blue-400" href="/expenses" data-i18n="nav.expenses">Dépenses</a>
+        {{ if .currentUser.IsAdmin }}
+          <a class="hover:text-blue-600 dark:hover:text-blue-400" href="/admin" data-i18n="nav.admin">Panel admin</a>
+        {{ end }}
         <span class="inline-flex items-center gap-2 text-slate-500 dark:text-slate-300 transition-colors duration-300">
           <span class="text-xl">👤</span>
           {{ .currentUser.Name }}

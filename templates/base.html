@@ -48,6 +48,8 @@
         {{ template "login_content" $ctx }}
       {{ else if eq . "register_content" }}
         {{ template "register_content" $ctx }}
+      {{ else if eq . "admin_content" }}
+        {{ template "admin_content" $ctx }}
       {{ end }}
     {{ end }}
   </main>

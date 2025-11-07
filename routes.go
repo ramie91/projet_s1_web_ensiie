@@ -244,10 +244,14 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	r.GET("/expenses/create", requireAuth(), func(c *gin.Context) {
 		currentUser := getCurrentUser(c)
 		var users []User
-		if err := db.Order("name ASC").Find(&users).Error; err != nil {
-			log.Printf("chargement des utilisateurs: %v", err)
-			c.String(http.StatusInternalServerError, "Impossible de charger les utilisateurs")
-			return
+		if currentUser != nil && currentUser.IsAdmin {
+			if err := db.Order("name ASC").Find(&users).Error; err != nil {
+				log.Printf("chargement des utilisateurs: %v", err)
+				c.String(http.StatusInternalServerError, "Impossible de charger les utilisateurs")
+				return
+			}
+		} else if currentUser != nil {
+			users = append(users, *currentUser)
 		}
 
 		if len(users) == 0 {
@@ -266,6 +270,7 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 			"today":           time.Now().Format("2006-01-02"),
 			"currentUser":     currentUser,
 			"users":           users,
+			"canSelectUser":   currentUser != nil && currentUser.IsAdmin,
 		})
 	})
 
@@ -294,19 +299,31 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	r.POST("/expense/create_expense", requireAuth(), func(c *gin.Context) {
 		var expense Expense
 		expectsJSON := expectsJSON(c)
+		currentUser := getCurrentUser(c)
+		if currentUser == nil {
+			if expectsJSON {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentification requise"})
+			} else {
+				c.Redirect(http.StatusSeeOther, "/login")
+			}
+			return
+		}
 
 		getUsers := func() []User {
 			var users []User
-			if err := db.Order("name ASC").Find(&users).Error; err != nil {
-				log.Printf("chargement des utilisateurs: %v", err)
+			if currentUser.IsAdmin {
+				if err := db.Order("name ASC").Find(&users).Error; err != nil {
+					log.Printf("chargement des utilisateurs: %v", err)
+					return users
+				}
+				if len(users) == 0 {
+					if defaultUser, err := ensureDefaultUser(db); err == nil {
+						users = append(users, defaultUser)
+					}
+				}
 				return users
 			}
-			if len(users) == 0 {
-				if defaultUser, err := ensureDefaultUser(db); err == nil {
-					users = append(users, defaultUser)
-				}
-			}
-			return users
+			return append(users, *currentUser)
 		}
 
 		switch {
@@ -321,51 +338,41 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 					"title":           "Créer une dépense",
 					"ContentTemplate": "create_expense_content",
 					"today":           time.Now().Format("2006-01-02"),
-					"currentUser":     getCurrentUser(c),
+					"currentUser":     currentUser,
 					"error":           "Formulaire invalide",
 					"users":           getUsers(),
+					"canSelectUser":   currentUser.IsAdmin,
 				})
 				return
 			}
 		}
 
-		if expense.UserID == 0 {
-			defaultUser, err := ensureDefaultUser(db)
-			if err != nil {
-				log.Printf("récupération utilisateur par défaut: %v", err)
-				if expectsJSON {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": "Utilisateur introuvable"})
-				} else {
-					c.HTML(http.StatusInternalServerError, "create_expense.html", gin.H{
-						"title":           "Créer une dépense",
-						"ContentTemplate": "create_expense_content",
-						"today":           time.Now().Format("2006-01-02"),
-						"currentUser":     getCurrentUser(c),
-						"error":           "Utilisateur introuvable",
-						"users":           getUsers(),
-					})
-				}
-				return
-			}
-			expense.UserID = defaultUser.ID
-		} else {
-			var user User
-			if err := db.First(&user, expense.UserID).Error; err != nil {
-				if expectsJSON {
-					c.JSON(http.StatusBadRequest, gin.H{"error": "Utilisateur inconnu"})
-				} else {
-					c.HTML(http.StatusBadRequest, "create_expense.html", gin.H{
-						"title":           "Créer une dépense",
-						"ContentTemplate": "create_expense_content",
-						"today":           time.Now().Format("2006-01-02"),
-						"currentUser":     getCurrentUser(c),
-						"error":           "Utilisateur sélectionné invalide",
-						"users":           getUsers(),
-					})
-				}
-				return
-			}
+		targetUserID := expense.UserID
+		if !currentUser.IsAdmin {
+			targetUserID = currentUser.ID
 		}
+		if targetUserID == 0 {
+			targetUserID = currentUser.ID
+		}
+
+		var owner User
+		if err := db.First(&owner, targetUserID).Error; err != nil {
+			if expectsJSON {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Utilisateur inconnu"})
+			} else {
+				c.HTML(http.StatusBadRequest, "create_expense.html", gin.H{
+					"title":           "Créer une dépense",
+					"ContentTemplate": "create_expense_content",
+					"today":           time.Now().Format("2006-01-02"),
+					"currentUser":     currentUser,
+					"error":           "Utilisateur sélectionné invalide",
+					"users":           getUsers(),
+					"canSelectUser":   currentUser.IsAdmin,
+				})
+			}
+			return
+		}
+		expense.UserID = owner.ID
 
 		if expense.DateAchat == "" {
 			expense.DateAchat = time.Now().Format("2006-01-02")
@@ -380,9 +387,10 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 					"title":           "Créer une dépense",
 					"ContentTemplate": "create_expense_content",
 					"today":           time.Now().Format("2006-01-02"),
-					"currentUser":     getCurrentUser(c),
+					"currentUser":     currentUser,
 					"error":           "Impossible de créer la dépense",
 					"users":           getUsers(),
+					"canSelectUser":   currentUser.IsAdmin,
 				})
 			}
 			return
@@ -404,18 +412,76 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	})
 
 	r.GET("/expenses", requireAuth(), func(c *gin.Context) {
+		currentUser := getCurrentUser(c)
+		if currentUser == nil {
+			c.Redirect(http.StatusSeeOther, "/login")
+			return
+		}
+
 		var expenses []Expense
-		if err := db.Preload("User").Order("id ASC").Find(&expenses).Error; err != nil {
+		query := db.Preload("User").Order("id ASC")
+		if !currentUser.IsAdmin {
+			query = query.Where("user_id = ?", currentUser.ID)
+		}
+		if err := query.Find(&expenses).Error; err != nil {
 			log.Printf("liste des dépenses: %v", err)
 			c.String(http.StatusInternalServerError, "Impossible de charger les dépenses")
 			return
 		}
-		currentUser := getCurrentUser(c)
 		c.HTML(http.StatusOK, "expenses.html", gin.H{
 			"title":           "Dépenses",
 			"ContentTemplate": "expenses_content",
 			"expenses":        expenses,
 			"currentUser":     currentUser,
+			"categories": []struct {
+				Value string
+				Label string
+			}{
+				{"Logement", "Logement"},
+				{"Alimentation", "Alimentation"},
+				{"Transport", "Transport"},
+				{"Sante", "Santé & Bien-être"},
+				{"Loisirs", "Loisirs & Culture"},
+				{"Education", "Éducation & Formation"},
+				{"Achats", "Achats divers"},
+				{"Impots", "Impôts & Services financiers"},
+				{"Famille", "Famille & Cadeaux"},
+				{"Autres", "Autres / Divers"},
+			},
+		})
+	})
+
+	r.GET("/admin", requireAuth(), requireAdmin(), func(c *gin.Context) {
+		currentUser := getCurrentUser(c)
+		var users []User
+		if err := db.Preload("Expenses").Order("name ASC").Find(&users).Error; err != nil {
+			log.Printf("chargement utilisateurs admin: %v", err)
+			c.String(http.StatusInternalServerError, "Impossible de charger les utilisateurs")
+			return
+		}
+
+		var totalExpenses int64
+		if err := db.Model(&Expense{}).Count(&totalExpenses).Error; err != nil {
+			log.Printf("compte dépenses: %v", err)
+			c.String(http.StatusInternalServerError, "Impossible de charger les statistiques")
+			return
+		}
+
+		var recent []Expense
+		if err := db.Preload("User").Order("date_achat DESC, id DESC").Limit(10).Find(&recent).Error; err != nil {
+			log.Printf("chargement dernières dépenses: %v", err)
+			c.String(http.StatusInternalServerError, "Impossible de charger les dernières dépenses")
+			return
+		}
+
+		c.HTML(http.StatusOK, "admin.html", gin.H{
+			"title":           "Administration",
+			"ContentTemplate": "admin_content",
+			"currentUser":     currentUser,
+			"users":           users,
+			"totalUsers":      len(users),
+			"totalExpenses":   totalExpenses,
+			"recentExpenses":  recent,
 		})
 	})
 
@@ -495,6 +561,22 @@ func requireAuth() gin.HandlerFunc {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authentification requise"})
 			} else {
 				c.Redirect(http.StatusSeeOther, "/login")
+				c.Abort()
+			}
+			return
+		}
+		c.Next()
+	}
+}
+
+func requireAdmin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user := getCurrentUser(c)
+		if user == nil || !user.IsAdmin {
+			if expectsJSON(c) {
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Accès réservé à l'administrateur"})
+			} else {
+				c.Redirect(http.StatusSeeOther, "/")
 				c.Abort()
 			}
 			return

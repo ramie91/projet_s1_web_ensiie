@@ -1,0 +1,81 @@
+{{ define "admin.html" }}
+  {{ template "base" . }}
+{{ end }}
+
+{{ define "admin_content" }}
+<section class="space-y-8">
+  <header class="space-y-2 text-center">
+    <h1 class="text-3xl font-semibold text-slate-800 dark:text-slate-100" data-i18n="admin.heading">Espace administrateur</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400" data-i18n="admin.subheading">Gérez les utilisateurs et surveillez les dépenses globales.</p>
+  </header>
+
+  <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
+      <p class="text-sm uppercase tracking-wide text-slate-500 dark:text-slate-400" data-i18n="admin.metrics.totalUsers.label">Utilisateurs</p>
+      <p class="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ .totalUsers }}</p>
+      <p class="text-sm text-slate-500 dark:text-slate-400" data-i18n="admin.metrics.totalUsers.caption">Comptes enregistrés</p>
+    </div>
+    <div class="  rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
+      <p class="text-sm uppercase tracking-wide text-slate-500 dark:text-slate-400" data-i18n="admin.metrics.totalExpenses.label">Dépenses</p>
+      <p class="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ .totalExpenses }}</p>
+      <p class="text-sm text-slate-500 dark:text-slate-400" data-i18n="admin.metrics.totalExpenses.caption">Total des enregistrements</p>
+    </div>
+  </div>
+
+  <div class="mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
+    <div class="border-b border-slate-100 p-4 dark:border-slate-800">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100" data-i18n="admin.users.title">Utilisateurs</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-700 dark:text-slate-200">
+        <thead class="bg-gray-50 text-xs uppercase tracking-wider dark:bg-slate-950/60">
+          <tr>
+            <th class="px-4 py-3" data-i18n="admin.users.table.name">Nom</th>
+            <th class="px-4 py-3" data-i18n="admin.users.table.email">Email</th>
+            <th class="px-4 py-3 text-right" data-i18n="admin.users.table.expenses">Dépenses</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          {{ range .users }}
+          <tr>
+            <td class="px-4 py-3">
+              <span class="font-medium text-slate-900 dark:text-slate-100">{{ .Name }}</span>
+              {{ if .IsAdmin }}
+                <span class="ml-2 inline-flex items-center rounded-full bg-blue-500/15 px-2 text-[11px] font-semibold uppercase tracking-wide text-blue-500" data-i18n="admin.users.badge.admin">Admin</span>
+              {{ end }}
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ .Email }}</td>
+            <td class="px-4 py-3 text-right text-slate-900 dark:text-slate-100">{{ len .Expenses }}</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
+    <div class="border-b border-slate-100 p-4 dark:border-slate-800">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100" data-i18n="admin.recent.title">Dernières dépenses</h2>
+    </div>
+    <div class="divide-y divide-slate-100 dark:divide-slate-800">
+      {{ if .recentExpenses }}
+        {{ range .recentExpenses }}
+        <div class="flex items-center justify-between px-4 py-3">
+          <div>
+            <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ .Title }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              <span>{{ .User.Name }}</span>
+              ·
+              <span>{{ .DateAchat }}</span>
+            </p>
+          </div>
+          <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ printf "%.2f" .Amount }} {{ .Currency }}</p>
+        </div>
+        {{ end }}
+      {{ else }}
+        <p class="px-4 py-6 text-center text-sm text-slate-500 dark:text-slate-400" data-i18n="admin.recent.empty">Aucune dépense trouvée.</p>
+      {{ end }}
+    </div>
+  </div>
+</section>
+{{ end }}

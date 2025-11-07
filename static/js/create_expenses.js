@@ -10,10 +10,22 @@ addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  const translate = (key) => {
+    try {
+      const prefs = window.appPreferences;
+      if (prefs && typeof prefs.translate === "function") {
+        return prefs.translate(key);
+      }
+    } catch (error) {
+      console.warn("translation fallback used", error);
+    }
+    return key;
+  };
+
   const hideModal = () => {
     modal.classList.add("hidden");
     confirmBtn.disabled = false;
-    confirmBtn.textContent = "Valider";
+    confirmBtn.textContent = translate("create.modal.confirm");
   };
 
   const showModal = () => {
@@ -50,7 +62,7 @@ addEventListener("DOMContentLoaded", () => {
     }
 
     confirmBtn.disabled = true;
-    confirmBtn.textContent = "Création...";
+    confirmBtn.textContent = translate("create.state.submitting");
 
     fetch("/expense/create_expense", {
       method: "POST",
@@ -75,12 +87,12 @@ addEventListener("DOMContentLoaded", () => {
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert("Erreur lors de la création de la dépense.");
+        alert(translate("create.error.generic"));
         hideModal();
       })
       .finally(() => {
         confirmBtn.disabled = false;
-        confirmBtn.textContent = "Valider";
+        confirmBtn.textContent = translate("create.modal.confirm");
       });
   });
 
