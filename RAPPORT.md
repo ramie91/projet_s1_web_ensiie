@@ -1,8 +1,8 @@
-# Rapport de projet - CheckMate
+# Rapport de projet - CheckMate Nasseraldin Ramie
 
 ## 1. Technologies utilisées (et justification)
 - **Go 1.24 + Gin + Gorm/SQLite** : pile légère, un binaire + un fichier DB unique (`data.db`), maintien facile du nombre de fichiers côté serveur (routes/main/models). Sessions par cookie HttpOnly.  
-- **Templates HTML + Tailwind CSS compilé** : CSS déjà générée dans `static/css`, pas besoin de pipeline lourd pour l’évaluateur.  
+- **Templates HTML + Tailwind CSS compilé** : CSS déjà générée dans `static/css`.  
 - **JavaScript vanilla** : bascule langue (fr/en) et thème jour/nuit (avec tailwind) sans rechargement, appels fetch JSON pour la liste/suppression/creation de dépenses.  
 - **Dépassement autorisé** : la compilation Tailwind produit quelques fichiers CSS/JS supplémentaires dans `static/`. Le cœur serveur reste <10 fichiers non binaires ; côté client les templates+JS principaux restent compacts.
 
@@ -28,22 +28,22 @@
 - **Gestion des rôles** : middleware `requireAuth` et `requireAdmin` dans `routes.go`; les requêtes JSON filtrent par utilisateur sauf admin (`/get_expenses_by_category`).  
 - **Formulaires et API JSON** : routes acceptent à la fois `application/json` et POST formulaire ; la vue est rechargée ou renvoie JSON selon `Accept`/`Content-Type`.  
 - **Structure minimale** : serveur limité à `main.go`, `routes.go`, `models.go`. Côté client : templates dans `templates/`, JS dans `static/js/`, CSS précompilée dans `static/css/`.
-- **Modèles et base** : 2 tables Gorm/SQLite simples. `User` (ID, Name, Email unique, PasswordHash, IsAdmin, relation `Expenses`) et `Expense` (ID, Title, Amount, Currency, DateAchat, Category, UserID + relation `User`). Mots de passe hashés (bcrypt), contraintes `OnUpdate:CASCADE, OnDelete:RESTRICT` pour éviter les effacements involontaires. `initDatabase` auto-migre, crée un compte démo + admin si absents, recolle les dépenses orphelines et injecte deux dépenses de seed si nécessaire.
+- **Modèles et base** : 2 tables Gorm/SQLite simples. `User` (ID, Name, Email unique, PasswordHash, IsAdmin, relation `Expenses`) et `Expense` (ID, Title, Amount, Currency, DateAchat, Category, UserID + relation `User`). Mots de passe hashés (bcrypt), contraintes `OnUpdate:CASCADE, OnDelete:RESTRICT` pour éviter les effacements involontaires. `initDatabase` auto-migre, crée un compte démo + admin si absents et injecte deux dépenses de seed si nécessaire.
 
-## 4. Sécurité et limites
+## 4. Validation rapide (Firefox)
+- Connexion/déconnexion + création d’un compte.
+- Créer une dépense, vérifier son apparition dans `/expenses`, tester suppression.
+- En admin : accéder à `/admin`, vérifier stats et dernières dépenses.
+- Tester bascule fr/en et clair/sombre sans rechargement (persistance après refresh).
+- Vérifier les réponses JSON (Accept: application/json) pour création/liste.
+
+## 5. Sécurité et limites
 - Hash bcrypt des mots de passe ; sessions HttpOnly.  
-- CSRF non implémenté (à ajouter si déploiement).  
+- CSRF non implémenté (à ajouter si déploiement public).  
 - Validation basique (types/requis) ; pas de vérification email.  
-- Pas de pagination/filtrage avancé ; taille d’archive à vérifier après ajout des captures.
 
-## 5. Pistes d’amélioration
+## 6. Pistes d’amélioration
 - CSRF + rate limiting + logging structuré.
-- Pagination/recherche sur `/expenses`; filtres par période/catégorie.
+- Pagination/recherche sur `/expenses`; filtres par période.
 - Exports CSV/JSON, budgets par catégorie, notifications.
-- Tests d’intégration Gin/SQLite et e2e navigateur.
-
-## 6. Captures d’écran (à insérer)
-- Accueil en fr/en, thème clair/sombre.
-- Formulaire de dépense.
-- Liste des dépenses.
-- Tableau de bord admin.
+- Tests d’intégration Gin/SQLite.
