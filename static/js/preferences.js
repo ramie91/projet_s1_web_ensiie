@@ -235,6 +235,7 @@
     theme: new Set(),
   };
 
+  // Lecture/écriture localStorage protégée (mode privé, quotas, etc.).
   const getStoredPreference = (key, fallback) => {
     try {
       const value = localStorage.getItem(key);
@@ -290,6 +291,7 @@
       return;
     }
 
+    // Alterne l’icône/label du bouton en fonction du thème courant.
     const themeIcon = themeButton.querySelector(".theme-icon");
     const themeLabel = themeButton.querySelector(".theme-label");
     const nextTheme = currentTheme === "dark" ? "light" : "dark";
@@ -330,6 +332,7 @@
       return;
     }
 
+    // data-i18n => textContent ; data-i18n-placeholder => placeholder, etc.
     if (datasetKey === "i18n") {
       element.textContent = translated;
       return;
@@ -355,6 +358,7 @@
   };
 
   const applyTranslations = () => {
+    // Re-traduit tout le DOM ciblé par data-i18n*, puis rafraîchit les boutons.
     document.documentElement.setAttribute("lang", currentLang);
     const elements = document.querySelectorAll("[data-i18n], [data-i18n-placeholder], [data-i18n-title], [data-i18n-label], [data-i18n-aria-label], [data-i18n-value], [data-i18n-html]");
     elements.forEach((element) => {
@@ -403,6 +407,7 @@
     themeButton = document.querySelector('[data-action="toggle-theme"]');
     languageButton = document.querySelector('[data-action="toggle-language"]');
 
+    // Buttons de navbar : switch langue/thème en un clic.
     if (languageButton) {
       languageButton.addEventListener("click", () => {
         const nextLang = currentLang === "fr" ? "en" : "fr";
@@ -443,6 +448,7 @@
   window.appPreferences = preferencesApi;
 
   const initialise = () => {
+    // Applique le thème/langue stockés sans émettre d’événement, puis bind les boutons.
     bindControls();
     applyTheme(currentTheme, { emit: false });
     applyLanguage(currentLang, { emit: false });

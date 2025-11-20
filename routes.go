@@ -29,6 +29,7 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	r.LoadHTMLGlob("templates/*")
 
 	r.GET("/", func(c *gin.Context) {
+		// Page d’accueil : stats globales affichées par le JS via /get_expenses_by_category.
 		currentUser := getCurrentUser(c)
 		c.HTML(http.StatusOK, "home.html", gin.H{
 			"title":           "Bienvenue sur CheckMate",
@@ -275,6 +276,7 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	})
 
 	r.DELETE("/expenses/delete/:id", requireAuth(), func(c *gin.Context) {
+		// Suppression directe ; si besoin on peut ajouter un contrôle d’appartenance côté serveur.
 		var expense Expense
 		if err := db.Delete(&expense, c.Param("id")).Error; err != nil {
 			log.Printf("suppression de la dépense: %v", err)
@@ -500,6 +502,7 @@ func expectsJSON(c *gin.Context) bool {
 }
 
 func withCurrentUser(db *gorm.DB) gin.HandlerFunc {
+	// Récupère l’utilisateur de la session et le place dans le contexte Gin.
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
 		userID := session.Get("user_id")
@@ -560,6 +563,7 @@ func getCurrentUserID(c *gin.Context) uint {
 }
 
 func requireAuth() gin.HandlerFunc {
+	// Bloque l’accès si l’utilisateur n’est pas connecté (JSON => 401, HTML => redirection).
 	return func(c *gin.Context) {
 		if getCurrentUser(c) == nil {
 			if expectsJSON(c) {
@@ -575,6 +579,7 @@ func requireAuth() gin.HandlerFunc {
 }
 
 func requireAdmin() gin.HandlerFunc {
+	// Restreint l’accès aux admins (JSON => 403, HTML => redirection accueil).
 	return func(c *gin.Context) {
 		user := getCurrentUser(c)
 		if user == nil || !user.IsAdmin {

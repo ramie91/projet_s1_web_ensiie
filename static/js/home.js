@@ -1,3 +1,4 @@
+// Constantes de secours pour l’i18n (si appPreferences indisponible).
 const FALLBACK_CATEGORY_KEY = "__fallback__";
 const FALLBACK_TRANSLATIONS = {
   "stats.totalTransactions": "{count} dépense(s)",
@@ -95,6 +96,7 @@ const createTranslator = (prefs) => {
 };
 
 const computeStats = (expenseList) => {
+  // Agrège les montants globaux, mensuels et par catégorie.
   let totalAmount = 0;
   let totalCount = 0;
   let monthAmount = 0;
@@ -161,6 +163,7 @@ const renderStats = () => {
     return;
   }
 
+  // Mise à jour des cartes de stats avec formatage localisé.
   const prefs = getPreferences();
   const lang = prefs.getLanguage ? prefs.getLanguage() : document.documentElement.lang || "fr";
   const locale = getLocaleFromLang(lang);
@@ -217,6 +220,7 @@ const renderChart = () => {
     return;
   }
 
+  // Re-rend le pie chart avec les labels traduits et les montants agrégés.
   const prefs = getPreferences();
   const translate = createTranslator(prefs);
 
@@ -273,6 +277,7 @@ const renderChart = () => {
 };
 
 const initialiseLanguageWatcher = () => {
+  // Quand la langue change, on re-render stats + chart sans refetch.
   const prefs = getPreferences();
   if (prefs && typeof prefs.onLanguageChange === "function") {
     prefs.onLanguageChange(() => {
@@ -296,6 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initialiseLanguageWatcher();
 
+  // Fetch des dépenses, calcul des stats, puis rendu.
   (async () => {
     try {
       expenses = await fetchData();

@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/static/css/output.css">
   <title>{{ .title }}</title>
   <script>
+    // Pré-application du thème/langue avant le rendu pour éviter un flash de style/texte.
     try {
       const storedTheme = localStorage.getItem("app-theme");
       const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;

@@ -30,6 +30,7 @@ type Expense struct {
 }
 
 func initDatabase(path string) (*gorm.DB, error) {
+	// Migration + création des comptes (démo/admin) et de quelques dépenses de départ.
 	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -71,6 +72,7 @@ func initDatabase(path string) (*gorm.DB, error) {
 }
 
 func ensureDefaultUser(db *gorm.DB) (User, error) {
+	// Garantit un utilisateur de base (serve aussi de propriétaire des seeds).
 	var user User
 	if err := db.Order("id ASC").First(&user).Error; err == nil {
 		if user.PasswordHash == "" {
@@ -101,6 +103,7 @@ func ensureDefaultUser(db *gorm.DB) (User, error) {
 }
 
 func ensureAdminUser(db *gorm.DB) (User, error) {
+	// Crée un administrateur si aucun n’existe déjà.
 	var admin User
 	if err := db.Where("is_admin = ?", true).Order("id ASC").First(&admin).Error; err == nil {
 		if admin.PasswordHash == "" {

@@ -10,6 +10,7 @@ addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // Fallback d’i18n minimal pour les alertes/boutons.
   const translate = (key) => {
     try {
       const prefs = window.appPreferences;
@@ -45,6 +46,7 @@ addEventListener("DOMContentLoaded", () => {
   });
 
   confirmBtn.addEventListener("click", () => {
+    // Prépare la charge utile côté API (JSON).
     const payload = {
       Title: document.getElementById("title").value.trim(),
       Amount: parseFloat(document.getElementById("amount").value),

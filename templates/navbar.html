@@ -3,6 +3,7 @@
   <div class="container mx-auto flex items-center justify-between px-4 py-4">
     <a class="text-xl font-semibold text-blue-600 dark:text-blue-400" href="/" data-i18n="brand.name">CheckMate</a>
     <nav class="flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors duration-300">
+      <!-- Liens contextuels selon la session + rôles -->
       <a class="hover:text-blue-600 dark:hover:text-blue-400" href="/" data-i18n="nav.home">Accueil</a>
       {{ if .currentUser }}
         <a class="hover:text-blue-600 dark:hover:text-blue-400" href="/expenses/create" data-i18n="nav.addExpense">Ajouter une dépense</a>
@@ -24,6 +25,7 @@
         <a class="hover:text-blue-600 dark:hover:text-blue-400" href="/register" data-i18n="nav.register">Créer un compte</a>
       {{ end }}
       <div class="flex items-center gap-3">
+        <!-- Bouton langue -->
         <button
           type="button"
           class="flex items-center gap-2 rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors duration-300"
@@ -32,6 +34,7 @@
         >
           <span aria-hidden="true" data-i18n="action.switchEnglish">🌐</span>
         </button>
+        <!-- Bouton thème -->
         <button
           type="button"
           class="flex items-center gap-2 rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors duration-300"
