@@ -286,7 +286,12 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 
 	r.POST("/get_expenses_by_category", requireAuth(), func(c *gin.Context) {
 		var expenses []Expense
-		if err := db.Preload("User").Where("user_id = ?", getCurrentUserID(c)).Find(&expenses).Error; err != nil {
+		currentUser := getCurrentUser(c)
+		query := db.Preload("User").Order("date_achat DESC")
+		if currentUser == nil || !currentUser.IsAdmin {
+			query = query.Where("user_id = ?", getCurrentUserID(c))
+		}
+		if err := query.Find(&expenses).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la récupération des dépenses"})
 			return
 		}

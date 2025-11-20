@@ -22,6 +22,7 @@
       "action.submit": "Ajouter",
       "home.heading": "Accueil",
       "home.tagline": "Visualisez vos dépenses avec CheckMate.",
+      "home.ctaLogin": "Se connecter",
       "home.totalSpent": "Total dépensé",
       "home.thisMonth": "Ce mois-ci",
       "home.topCategory": "Catégorie principale",
@@ -84,6 +85,7 @@
       "login.placeholder.password": "••••••••",
       "login.button.submit": "Se connecter",
       "login.demoNotice": "Compte démo : demo@example.com / mot de passe : demo",
+      "login.adminNotice": "Admin démo : admin@example.com / mot de passe : admin",
       "login.signupPrompt": "Pas encore de compte ?",
       "login.signupLink": "Créer un compte",
       "register.heading": "Créer un compte",
@@ -134,6 +136,7 @@
       "action.submit": "Add",
       "home.heading": "Home",
       "home.tagline": "Visualise your expenses with CheckMate.",
+      "home.ctaLogin": "Sign in",
       "home.totalSpent": "Total spent",
       "home.thisMonth": "This month",
       "home.topCategory": "Top category",
@@ -196,6 +199,7 @@
       "login.placeholder.password": "••••••••",
       "login.button.submit": "Sign in",
       "login.demoNotice": "Demo account: demo@example.com / password: demo",
+      "login.adminNotice": "Admin demo: admin@example.com / password: admin",
       "login.signupPrompt": "Don't have an account yet?",
       "login.signupLink": "Create an account",
       "expenses.error.delete": "Error while deleting the expense.",
@@ -322,7 +326,7 @@
       return;
     }
     const translated = translate(translationKey);
-    if (!translated) {
+    if (!translated || translated === translationKey) {
       return;
     }
 
